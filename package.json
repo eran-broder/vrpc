@@ -1,0 +1,14 @@
+{
+  "name": "vrpc",
+  "version": "1.0.0",
+  "main": "dost/main.js",
+  "license": "MIT",
+  "dependencies": {
+    "named-pipes": "^0.0.1",
+    "net": "^1.0.2",
+    "typescript": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.1"
+  }
+}
