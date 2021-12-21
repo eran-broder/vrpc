@@ -36,69 +36,45 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-var rpc = require("./RemoteInspector_vrpc");
+var rpc = require("./IRemoteInspector_vrpc");
 var rpcGenerator_1 = require("./rpcGenerator");
 var pipeTransport_1 = require("./pipeTransport");
 var rpcManager_1 = require("./rpcManager");
 var pipe;
-function outgoingMessageGenerator(name) {
-    var args = [];
-    for (var _i = 1; _i < arguments.length; _i++) {
-        args[_i - 1] = arguments[_i];
-    }
+function outgoingMessageGenerator(name, args) {
     var message = { method: name, arguments: args };
     return message;
 }
-var client = (0, rpcGenerator_1.createClient)(rpc.RemoteInspector_methods, function (name, args) {
-    var outgoingMessage = outgoingMessageGenerator(name, args);
-    return Promise.resolve();
-});
-function argsToJson(nameOfMethod, args) {
-    var jsonObj = {};
-    for (var index = 0; index < args.length; index++) {
-        jsonObj[rpc.RemoteInspector_arguments[nameOfMethod][index]] = args[index];
-    }
-    return jsonObj;
-}
 function DoStuff() {
     return __awaiter(this, void 0, void 0, function () {
-        var transport, channel, client, result;
+        function fetchOne() {
+            return __awaiter(this, void 0, void 0, function () {
+                var liveToken, elementDetails;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, client.GetElementUnderMouse()];
+                        case 1:
+                            liveToken = _a.sent();
+                            return [4 /*yield*/, client.GetElementDetails(liveToken)];
+                        case 2:
+                            elementDetails = _a.sent();
+                            console.log("Got back : ".concat(JSON.stringify(elementDetails)));
+                            return [2 /*return*/];
+                    }
+                });
+            });
+        }
+        var transport, channel, client;
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    transport = new pipeTransport_1.NamedPipeTransport("mypipe");
-                    channel = new rpcManager_1.RpcChannel(transport);
-                    client = (0, rpcGenerator_1.createClient)(rpc.RemoteInspector_methods, function (name, args) {
-                        var outgoingMessage = outgoingMessageGenerator(name, args);
-                        return channel.write(outgoingMessage);
-                    });
-                    return [4 /*yield*/, client.FindElement(10, "hello")];
-                case 1:
-                    result = _a.sent();
-                    console.log("Got back : ".concat(JSON.stringify(result)));
-                    return [2 /*return*/];
-            }
+            transport = new pipeTransport_1.NamedPipeTransport("mypipe");
+            channel = new rpcManager_1.RpcChannel(transport);
+            client = (0, rpcGenerator_1.createClient)(rpc.IRemoteInspector_methods, function (name, args) {
+                var outgoingMessage = outgoingMessageGenerator(name, args);
+                return channel.write(outgoingMessage);
+            });
+            setInterval(fetchOne, 1000);
+            return [2 /*return*/];
         });
     });
 }
 DoStuff();
-/*
-var PIPE_NAME = "mypipe";
-var PIPE_PATH = "\\\\.\\pipe\\" + PIPE_NAME;
-var L = console.log;
-
-// == Client part == //
-pipe = net.connect(PIPE_PATH, function() {
-    L('Client: on connection');
-})
-
-pipe.on('data', function(data) {
-    L('Client: on data:', data.toString());
-    pipe.end('Thanks!');
-});
-
-pipe.on('end', function() {
-    L('Client: on end');
-})
-
-*/ 
