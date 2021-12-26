@@ -37,6 +37,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.RpcChannel = void 0;
+var MessageType;
+(function (MessageType) {
+    MessageType[MessageType["Request"] = 0] = "Request";
+    MessageType[MessageType["Response"] = 1] = "Response";
+    MessageType[MessageType["Event"] = 2] = "Event";
+    MessageType[MessageType["Error"] = 3] = "Error";
+})(MessageType || (MessageType = {}));
 //TODO: support events
 var RpcChannel = /** @class */ (function () {
     function RpcChannel(transport) {
@@ -51,19 +58,32 @@ var RpcChannel = /** @class */ (function () {
             return __generator(this, function (_a) {
                 this.transport.on("data", function (data) {
                     var raw = data.toString();
-                    console.log("Got back data with : ");
-                    console.log(raw);
                     var msg = JSON.parse(raw);
-                    var matchigPromise = _this._awaitingPromises[msg.id];
-                    //TODO: how should I handle a non existing message?
-                    matchigPromise[0](msg.payload);
+                    //TODO: really??? if else? no way man...no way... perhaps map an enum to an interface handler?
+                    if (msg.messageType == MessageType.Response) {
+                        var matchigPromise = _this._awaitingPromises[msg.id];
+                        //TODO: how should I handle a non existing message?
+                        matchigPromise[0](msg.payload);
+                    }
+                    else if (msg.messageType == MessageType.Event) {
+                        if (_this._eventListener) {
+                            console.log(msg);
+                            console.log(JSON.stringify(msg));
+                            var eventPyload = msg.payload; //TODO: What is this crap??????
+                            _this._eventListener(eventPyload.name, eventPyload.argument);
+                        }
+                    }
+                    else if (msg.messageType == MessageType.Error) {
+                        var matchigPromise = _this._awaitingPromises[msg.id];
+                        matchigPromise[1](msg.payload);
+                    }
                 });
                 return [2 /*return*/];
             });
         });
     };
     RpcChannel.prototype.createRequestMessage = function (payload) {
-        return { id: this._runningId++, payload: payload };
+        return { id: this._runningId++, payload: payload, messageType: MessageType.Request };
     };
     RpcChannel.prototype.write = function (payload) {
         return __awaiter(this, void 0, void 0, function () {
@@ -83,6 +103,11 @@ var RpcChannel = /** @class */ (function () {
                 }
             });
         });
+    };
+    RpcChannel.prototype.listen = function (listener) {
+        if (this._eventListener)
+            throw Error("Cannot have multiple event handlers");
+        this._eventListener = listener;
     };
     return RpcChannel;
 }());

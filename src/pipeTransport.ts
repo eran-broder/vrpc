@@ -13,7 +13,7 @@ export class NamedPipeTransport implements ITransport{
         })        
     }
 
-    on(event: "data", listener: (data: Buffer) => void) {
+    on(event: "data", listener: (data: Buffer) => void) {        
         this._pipe.on("data", listener);
     }
 

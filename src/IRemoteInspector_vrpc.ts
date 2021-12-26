@@ -1,14 +1,1 @@
-interface LiveElementToken{
-    Key: number;
-}
-interface ElementDetails{
-    Name: string;
-AutomationId: string;
-}
-interface IRemoteInspector{
-    GetElementUnderMouse(): LiveElementToken;
-GetElementDetails(token: LiveElementToken): ElementDetails;
-}
-const IRemoteInspector_methods : Array<keyof IRemoteInspector> = ['GetElementUnderMouse','GetElementDetails'];
-const IRemoteInspector_arguments = {"GetElementUnderMouse": [], "GetElementDetails": ["token"]};
-export {IRemoteInspector, IRemoteInspector_methods, IRemoteInspector_arguments}
+import * as coreTypes from "./rpcCoreTypes";interface SessionToken{    key: number;}interface LiveElementToken{    session: SessionToken;    key: number;}interface ElementDetails{    name: string;    automationId: string;}interface Process{    name: string;}interface Window{    class: string;}enum PropertyType{    CachedProperty,    Computed,}interface AttributeDescription{    type: PropertyType;    key: string;}interface CapturedAttribute{    description: AttributeDescription;    value: any;}interface ElementInContext{    capturedValues: Array<CapturedAttribute>;}interface Element{    process: Process;    window: Window;    inContextProperties: ElementInContext;}interface WindowEventArgs{    handle: number;}interface IRemoteInspector{    CreateSession(): Promise<SessionToken>;    RemoveSession(token: SessionToken): Promise<void>;    GetElementUnderMouse(token: SessionToken): Promise<LiveElementToken>;    GetElementDetails(token: LiveElementToken): Promise<ElementDetails>;    GetParentName(token: LiveElementToken): Promise<string>;    GetParent(childToken: LiveElementToken): Promise<LiveElementToken>;    FindElement(token: SessionToken,signature: Element): Promise<LiveElementToken>;    ListenToNewWindows(): Promise<void>;    on(eventName:"NewWindowOpened", callback: (obj: WindowEventArgs) => void): void;    on(eventName:"WindowClosed", callback: (obj: WindowEventArgs) => void): void;}const IRemoteInspector_methods : Array<coreTypes.WithoutEvents<IRemoteInspector>> = ['CreateSession','RemoveSession','GetElementUnderMouse','GetElementDetails','GetParentName','GetParent','FindElement','ListenToNewWindows'];const IRemoteInspector_arguments = {"CreateSession": [], "RemoveSession": ["token"], "GetElementUnderMouse": ["token"], "GetElementDetails": ["token"], "GetParentName": ["token"], "GetParent": ["childToken"], "FindElement": ["token", "signature"], "ListenToNewWindows": []};export {IRemoteInspector, IRemoteInspector_methods, IRemoteInspector_arguments, SessionToken, LiveElementToken, ElementDetails, Element, Process, Window, ElementInContext, CapturedAttribute, AttributeDescription, PropertyType, WindowEventArgs}
