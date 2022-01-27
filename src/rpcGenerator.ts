@@ -4,11 +4,6 @@ export type WrapWithPromise<T> = {
     [Property in keyof T]: T[Property] extends (...args:never[]) => infer Return ? (...args:Parameters<T[Property]>)=> Promise<Return> : never;
 }
 
-type FilterStartingWith<Set, Needle extends string> = Set extends `${Needle}${infer _X}` ? Set : never
-type FilterNotStartingWith<Set, Needle extends string> = Set extends `${Needle}${infer _X}` ? never : Set
-
-
-
 export function createClient<T>(methods: Array<WithoutEvents<T>>, 
                                 outgoingHandler: (name:string, ...args:any)=>Promise<any>)
                                 :{client: T, eventPump: (name: string, ...args:any)=>void}{
